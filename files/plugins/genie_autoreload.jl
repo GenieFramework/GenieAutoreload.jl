@@ -12,7 +12,11 @@ function collect_watched_files(folders::Vector{String} = String[])
   result = String[]
 
   for f in folders
-    push!(result, Genie.Util.walk_dir(f, only_extensions = ["jl", "html", "md", "js", "css"])...)
+    try
+      push!(result, Genie.Util.walk_dir(f, only_extensions = ["jl", "html", "md", "js", "css"])...)
+    catch ex
+      @error ex
+    end
   end
 
   result
@@ -24,7 +28,11 @@ function watch()
   entr(collect_watched_files(WATCHED_FOLDERS)) do
     @info "Reloading!"
 
-    Genie.WebChannels.message("autoreload", "autoreload:full")
+    try
+      Genie.WebChannels.message(WEBCHANNEL_NAME, "autoreload:full")
+    catch ex
+      @error ex
+    end
   end
 end
 

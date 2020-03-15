@@ -7,7 +7,7 @@ function install(dest::String; force = false) :: Nothing
 
   for f in readdir(src)
     isfile(f) && continue
-    isdir(f) || mkpath(joinpath(src, f))
+    isdir(f) || startswith(f, ".") || mkpath(joinpath(src, f))
 
     Genie.Plugins.install(joinpath(src, f), dest, force = force)
   end
