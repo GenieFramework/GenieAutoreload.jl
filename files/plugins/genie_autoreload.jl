@@ -1,12 +1,12 @@
-using Genie, Genie.Router, Genie.WebChannels, Genie.Util, Genie.Configuration
 using Revise
+using Genie, Genie.Router, Genie.WebChannels
 using Distributed, Logging
 
 Genie.config.websockets_server = true
 
 const WEBCHANNEL_NAME = "autoreload"
 const GENIE_AUTORELOAD = true
-const WATCHED_FOLDERS = ["app", "config", "lib", "plugins", "public"]
+const WATCHED_FOLDERS = ["config", "public", "src", pwd()]
 
 function collect_watched_files(folders::Vector{String} = String[])
   result = String[]
@@ -31,7 +31,7 @@ function watch()
     try
       Genie.WebChannels.message(WEBCHANNEL_NAME, "autoreload:full")
     catch ex
-      @error ex
+      @warn ex
     end
   end
 end

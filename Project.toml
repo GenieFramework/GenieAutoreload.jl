@@ -1,7 +1,7 @@
 name = "GenieAutoReload"
 uuid = "c6228e60-a24f-11e9-1776-c313472ebacc"
 authors = ["Adrian Salceanu <e@essenciary.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
