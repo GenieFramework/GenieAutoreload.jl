@@ -13,10 +13,10 @@ using GenieAutoReload
 # As part of the HTML UI code we need to load the autoreload.js file
 # so this needs to be added in order to output the corresponding 
 # <script> tag.
-view = """
-<p>Hello world</p>
-$(GenieAutoReload.assets())
-"""
+view = [
+  p("Hello world")
+  GenieAutoReload.assets()
+]
 html(view)
 
 # Add files and folders to be watched for changes
