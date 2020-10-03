@@ -7,6 +7,8 @@ To use in the app, add the following lines of code:
 
 ```julia
 using Genie, Genie.Renderer.Html # some app deps
+
+# load GenieAutoReload
 using GenieAutoReload
 
 # UI rendering code
