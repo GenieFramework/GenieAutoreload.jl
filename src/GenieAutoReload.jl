@@ -8,16 +8,15 @@ Genie.config.websockets_server = true
 
 const WEBCHANNEL_NAME = "autoreload"
 const GENIE_AUTORELOAD = true
-const WATCHED_FOLDERS = String[]
 const WATCHED_EXTENSIONS = String["jl", "html", "md", "js", "css"]
 const SCRIPT_URI = "/js/plugins/autoreload.js"
 
-function collect_watched_files(folders::Vector{String} = String[]) :: Vector{String}
+function collect_watched_files(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS) :: Vector{String}
   result = String[]
 
-  for f in folders
+  for f in files
     try
-      push!(result, Genie.Util.walk_dir(f, only_extensions = WATCHED_EXTENSIONS)...)
+      push!(result, Genie.Util.walk_dir(f, only_extensions = extensions)...)
     catch ex
       @error ex
     end
@@ -26,10 +25,10 @@ function collect_watched_files(folders::Vector{String} = String[]) :: Vector{Str
   result
 end
 
-function watch()
-  @info "Watching $WATCHED_FOLDERS"
+function watch(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS)
+  @info "Watching $files"
 
-  entr(collect_watched_files(WATCHED_FOLDERS); all = true, postpone = true) do
+  entr(collect_watched_files(files, extensions); all = true, postpone = true) do
     @info "Reloading!"
 
     try
@@ -74,7 +73,7 @@ function assets(; devonly = true) :: String
   end
 end
 
-function autoreload(; devonly = true)
+function autoreload(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS; devonly = true)
   if devonly && !Genie.Configuration.isdev()
     @warn "AutoReload configured for dev environment only. Skipping."
     return nothing
@@ -88,7 +87,11 @@ function autoreload(; devonly = true)
     WebChannels.subscribe(@params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
 
-  @async GenieAutoReload.watch()
+  @async GenieAutoReload.watch(files, extensions)
+end
+
+function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true)
+  autoreload([files...], [extensions...]; devonly = devonly)
 end
 
 end # module
