@@ -21,12 +21,8 @@ view = [
 ]
 html(view)
 
-# Add files and folders to be watched for changes
-# Folders will be added recursively
-push!(GenieAutoReload.WATCHED_FOLDERS, pwd())
-
 # Enable autoreload
-GenieAutoReload.autoreload()
+GenieAutoReload.autoreload(pwd())
 ```
 
 By default autoreloading is activated only when the Genie app runs in development. To force it to run 
