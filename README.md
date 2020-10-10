@@ -29,4 +29,4 @@ By default autoreloading is activated only when the Genie app runs in developmen
 in other environments, use `GenieAutoReload.autoreload(devonly = false)`. 
 
 Similarely, the assets are included only when the Genie app runs in development (otherise `assets()` won't return anything 
-and won't inject the `<script>` tag). To enable the assets in other environments, use ` and `GenieAutoReload.assets(devonly = false)`.
+and won't inject the `<script>` tag). To enable the assets in other environments, use `GenieAutoReload.assets(devonly = false)`.
