@@ -1,8 +1,13 @@
 module GenieAutoReload
 
+@eval Main __revise_mode__ = :eval
+@eval Main using Revise
+
 using Revise
 using Genie, Genie.Router, Genie.WebChannels
 using Distributed, Logging
+
+export autoreload
 
 Genie.config.websockets_server = true
 
@@ -28,7 +33,9 @@ end
 function watch(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS)
   @info "Watching $files"
 
-  entr(collect_watched_files(files, extensions); all = true, postpone = true) do
+  Revise.revise()
+
+  @async entr(collect_watched_files(files, extensions); all = true, postpone = true) do
     @info "Reloading!"
 
     try
@@ -87,7 +94,7 @@ function autoreload(files::Vector{String} = String[], extensions::Vector{String}
     WebChannels.subscribe(@params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
 
-  @async GenieAutoReload.watch(files, extensions)
+  GenieAutoReload.watch(files, extensions)
 end
 
 function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true)
