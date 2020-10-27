@@ -30,13 +30,19 @@ function collect_watched_files(files::Vector{String} = String[], extensions::Vec
   result
 end
 
-function watch(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS)
+function watch(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS;
+                delay::Int = 0)
   @info "Watching $files"
 
   Revise.revise()
 
   @async entr(collect_watched_files(files, extensions); all = true, postpone = true) do
     @info "Reloading!"
+
+    if delay > 0
+      @info "Waiting $delay seconds"
+      sleep(delay)
+    end
 
     try
       Genie.WebChannels.message(WEBCHANNEL_NAME, "autoreload:full")
@@ -80,7 +86,8 @@ function assets(; devonly = true) :: String
   end
 end
 
-function autoreload(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS; devonly = true)
+function autoreload(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS;
+                    devonly::Bool = true, delay::Int = 0)
   if devonly && !Genie.Configuration.isdev()
     @warn "AutoReload configured for dev environment only. Skipping."
     return nothing
@@ -94,11 +101,12 @@ function autoreload(files::Vector{String} = String[], extensions::Vector{String}
     WebChannels.subscribe(@params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
 
-  GenieAutoReload.watch(files, extensions)
+  GenieAutoReload.watch(files, extensions, delay = delay)
 end
 
-function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true)
-  autoreload([files...], [extensions...]; devonly = devonly)
+function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true,
+                    delay::Int = 0)
+  autoreload([files...], [extensions...]; devonly = devonly, delay = delay)
 end
 
 end # module
