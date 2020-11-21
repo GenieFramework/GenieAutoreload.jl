@@ -3,7 +3,13 @@
 
 GenieAutoReload monitors the indicated files and folders (recursively) and automatically recompiles the Julia code and reloads the corresponding browser window. 
 
-To use in the app, add the following lines of code: 
+To use, first make sure that you have installed [Revise.jl](https://github.com/timholy/Revise.jl) in your global environment, e.g.:
+```julia
+import Pkg
+Pkg.add("Revise")
+```
+
+Then, add the following lines of code to your app:
 
 ```julia
 using Genie, Genie.Renderer.Html # some app deps
