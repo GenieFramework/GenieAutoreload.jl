@@ -14,7 +14,7 @@ Genie.config.websockets_server = true
 const WEBCHANNEL_NAME = "autoreload"
 const GENIE_AUTORELOAD = true
 const WATCHED_EXTENSIONS = String["jl", "html", "md", "js", "css"]
-const SCRIPT_URI = "/js/plugins/autoreload.js"
+const SCRIPT_URI = "$(Genie.config.base_path)js/plugins/autoreload.js"
 
 function collect_watched_files(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS) :: Vector{String}
   result = String[]
@@ -97,15 +97,14 @@ function autoreload(files::Vector{String} = String[], extensions::Vector{String}
     assets_js() |> Genie.Renderer.Js.js
   end
 
-  channel("/$WEBCHANNEL_NAME/subscribe") do
+  channel("/$(WEBCHANNEL_NAME)/subscribe") do
     WebChannels.subscribe(@params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
 
   GenieAutoReload.watch(files, extensions, delay = delay)
 end
 
-function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true,
-                    delay::Int = 0)
+function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true, delay::Int = 0)
   autoreload([files...], [extensions...]; devonly = devonly, delay = delay)
 end
 
