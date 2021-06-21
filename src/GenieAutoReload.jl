@@ -98,7 +98,7 @@ function autoreload(files::Vector{String} = String[], extensions::Vector{String}
   end
 
   channel("/$(WEBCHANNEL_NAME)/subscribe") do
-    WebChannels.subscribe(@params(:WS_CLIENT), WEBCHANNEL_NAME)
+    WebChannels.subscribe(params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
 
   GenieAutoReload.watch(files, extensions, delay = delay)
