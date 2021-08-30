@@ -45,7 +45,7 @@ function watch(files::Vector{String} = String[], extensions::Vector{String} = WA
     end
 
     try
-      Genie.WebChannels.message(WEBCHANNEL_NAME, "autoreload:full")
+      Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
       WebChannels.unsubscribe_disconnected_clients(WEBCHANNEL_NAME)
     catch ex
       @warn ex
