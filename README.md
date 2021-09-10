@@ -24,6 +24,7 @@ view = [
 html(view)
 
 # Enable autoreload
+Genie.config.websockets_server = true
 GenieAutoReload.autoreload(pwd())
 ```
 
