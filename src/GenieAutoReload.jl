@@ -14,7 +14,7 @@ Genie.config.websockets_server = true
 const WEBCHANNEL_NAME = "autoreload"
 const GENIE_AUTORELOAD = true
 const WATCHED_EXTENSIONS = String["jl", "html", "md", "js", "css"]
-const SCRIPT_URI = "$(Genie.config.base_path)js/plugins/autoreload.js"
+const SCRIPT_URI = "$(Genie.Assets.external_assets(Genie.config.base_path) ? "" : "/")js/plugins/autoreload.js"
 
 function collect_watched_files(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS) :: Vector{String}
   result = String[]
@@ -56,14 +56,14 @@ end
 function assets_js() :: String
   """
   function autoreload_subscribe() {
-    Genie.WebChannels.sendMessageTo("autoreload", "subscribe");
-    console.log("Autoreloading ready");
+    Genie.WebChannels.sendMessageTo('autoreload', 'subscribe');
+    console.info('Autoreloading ready');
   }
 
   setTimeout(autoreload_subscribe, 2000);
 
   Genie.WebChannels.messageHandlers.push(function(event) {
-    if ( event.data == "autoreload:full" ) {
+    if ( event.data == 'autoreload:full' ) {
       location.reload(true);
     }
   });
