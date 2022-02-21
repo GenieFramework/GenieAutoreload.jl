@@ -1,9 +1,8 @@
 module GenieAutoReload
 
-@eval Main __revise_mode__ = :eval
-@eval Main using Revise
-
 using Revise
+__revise_mode__ = :eval
+
 using Genie, Genie.Router, Genie.WebChannels
 using Distributed, Logging
 
