@@ -30,7 +30,7 @@ function collect_watched_files(files::Vector{String} = String[], extensions::Vec
 end
 
 function watch(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS;
-                delay::Int = 0)
+                delay::Int = 0) :: Nothing
   @info "Watching $files"
 
   Revise.revise()
@@ -47,9 +47,11 @@ function watch(files::Vector{String} = String[], extensions::Vector{String} = WA
       Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
       WebChannels.unsubscribe_disconnected_clients(WEBCHANNEL_NAME)
     catch ex
-      @warn ex
+      # @warn ex
     end
   end
+
+  nothing
 end
 
 function assets_js() :: String
@@ -85,13 +87,7 @@ function assets(; devonly = true) :: String
   end
 end
 
-function autoreload(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS;
-                    devonly::Bool = true, delay::Int = 0)
-  if devonly && !Genie.Configuration.isdev()
-    @warn "AutoReload configured for dev environment only. Skipping."
-    return nothing
-  end
-
+function routing() :: Nothing
   route(SCRIPT_URI) do
     assets_js() |> Genie.Renderer.Js.js
   end
@@ -99,6 +95,23 @@ function autoreload(files::Vector{String} = String[], extensions::Vector{String}
   channel("/$(WEBCHANNEL_NAME)/subscribe") do
     WebChannels.subscribe(params(:WS_CLIENT), WEBCHANNEL_NAME)
   end
+
+  nothing
+end
+
+function deps() :: Vector{String}
+  routing()
+  [assets()]
+end
+
+function autoreload(files::Vector{String} = String[], extensions::Vector{String} = WATCHED_EXTENSIONS;
+                    devonly::Bool = true, delay::Int = 0)
+  if devonly && !Genie.Configuration.isdev()
+    @warn "AutoReload configured for dev environment only. Skipping."
+    return nothing
+  end
+
+  routing()
 
   GenieAutoReload.watch(files, extensions, delay = delay)
 end
