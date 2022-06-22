@@ -12,38 +12,33 @@ Genie.config.websockets_server = true
 
 const WEBCHANNEL_NAME = "autoreload"
 const SCRIPT_URI = "$(Genie.Assets.external_assets(Genie.config.base_path) ? "" : "/")js/plugins/autoreload.js"
-const WATCH_KEY = string(@__MODULE__)
+const WATCH_KEY = "autoreload"
 
-function unwatch(files::Vector{String}) :: Nothing
-  delete!(Genie.config.watch_handlers, WATCH_KEY)
-  Genie.Watch.unwatch(path)
+function collect_watched_files(files::Vector{String} = String[], extensions::Vector{String} = Genie.config.watch_extensions) :: Vector{String}
+  result = String[]
+
+  for f in files
+    push!(result, Genie.Util.walk_dir(f, only_extensions = extensions)...)
+  end
+
+  result |> unique!
+end
+
+function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions) :: Nothing
+  @info "Watching $files"
+
+  Genie.config.watch_handlers[WATCH_KEY] = [
+    () -> @info("Autoreloading"),
+    () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
+  ]
+
+  Genie.Watch.watch(files)
 
   nothing
 end
 
-function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions; delay::Int = 0) :: Nothing
-  @info "Watching $files"
-
-  Genie.config.watch_handlers[WATCH_KEY] = [
-    () -> begin
-      @info "Reloading!"
-
-      if delay > 0
-        @info "Waiting $delay seconds"
-        sleep(delay)
-      end
-
-      try
-        Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
-        WebChannels.unsubscribe_disconnected_clients(WEBCHANNEL_NAME)
-      catch ex
-        # @warn ex
-      end
-    end
-  ]
-  Genie.Watch.watch(files)
-
-  nothing
+function watch(files::String)
+  watch(String[files])
 end
 
 function assets_js() :: String
@@ -97,7 +92,7 @@ function deps() :: Vector{String}
 end
 
 function autoreload(files::Vector{String}, extensions::Vector{String} = WATCHED_EXTENSIONS;
-                    devonly::Bool = true, delay::Int = 0)
+                    devonly::Bool = true)
   if devonly && !Genie.Configuration.isdev()
     @warn "AutoReload configured for dev environment only. Skipping."
     return nothing
@@ -105,11 +100,11 @@ function autoreload(files::Vector{String}, extensions::Vector{String} = WATCHED_
 
   routing()
 
-  GenieAutoReload.watch(files, extensions, delay = delay)
+  GenieAutoReload.watch(files, extensions)
 end
 
-function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true, delay::Int = 0)
-  autoreload([files...], [extensions...]; devonly = devonly, delay = delay)
+function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true)
+  autoreload([files...], [extensions...]; devonly = devonly)
 end
 
 end # module
