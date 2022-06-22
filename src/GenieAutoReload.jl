@@ -14,16 +14,6 @@ const WEBCHANNEL_NAME = "autoreload"
 const SCRIPT_URI = "$(Genie.Assets.external_assets(Genie.config.base_path) ? "" : "/")js/plugins/autoreload.js"
 const WATCH_KEY = "autoreload"
 
-function collect_watched_files(files::Vector{String} = String[], extensions::Vector{String} = Genie.config.watch_extensions) :: Vector{String}
-  result = String[]
-
-  for f in files
-    push!(result, Genie.Util.walk_dir(f, only_extensions = extensions)...)
-  end
-
-  result |> unique!
-end
-
 function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions) :: Nothing
   @info "Watching $files"
 
@@ -31,8 +21,6 @@ function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.
     () -> @info("Autoreloading"),
     () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
   ]
-
-  Genie.Watch.watch(files)
 
   nothing
 end
@@ -91,7 +79,7 @@ function deps() :: Vector{String}
   [assets()]
 end
 
-function autoreload(files::Vector{String}, extensions::Vector{String} = WATCHED_EXTENSIONS;
+function autoreload(files::Vector{String}, extensions::Vector{String} = Genie.confg.watch_extensions;
                     devonly::Bool = true)
   if devonly && !Genie.Configuration.isdev()
     @warn "AutoReload configured for dev environment only. Skipping."
@@ -103,7 +91,7 @@ function autoreload(files::Vector{String}, extensions::Vector{String} = WATCHED_
   GenieAutoReload.watch(files, extensions)
 end
 
-function autoreload(files...; extensions::Vector{String} = WATCHED_EXTENSIONS, devonly = true)
+function autoreload(files...; extensions::Vector{String} = Genie.config.watch_extensions, devonly = true)
   autoreload([files...], [extensions...]; devonly = devonly)
 end
 
