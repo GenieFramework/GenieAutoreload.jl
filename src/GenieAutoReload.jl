@@ -22,6 +22,8 @@ function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.
     () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
   ]
 
+  Genie.Watch.watchpath(files)
+
   nothing
 end
 
