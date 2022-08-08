@@ -81,7 +81,7 @@ function deps() :: Vector{String}
   [assets()]
 end
 
-function autoreload(files::Vector{String}, extensions::Vector{String} = Genie.confg.watch_extensions;
+function autoreload(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions;
                     devonly::Bool = true)
   if devonly && !Genie.Configuration.isdev()
     @warn "AutoReload configured for dev environment only. Skipping."
