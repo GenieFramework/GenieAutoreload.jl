@@ -11,8 +11,8 @@ export autoreload
 Genie.config.websockets_server = true
 
 const WEBCHANNEL_NAME = "autoreload"
-const SCRIPT_URI = "$(Genie.Assets.external_assets(Genie.config.base_path) ? "" : "/")js/plugins/autoreload.js"
 const WATCH_KEY = "autoreload"
+const assets_config = Genie.Assets.AssetsConfig(package = "GenieAutoReload.jl")
 
 function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions) :: Nothing
   @info "Watching $files"
@@ -58,15 +58,17 @@ end
 
 function assets(; devonly = true) :: String
   if (devonly && Genie.Configuration.isdev()) || !devonly
-    """<script src="$SCRIPT_URI"></script>"""
+    Genie.Renderer.Html.script(src = Genie.Assets.asset_path(assets_config, :js, file="autoreload"))
   else
     ""
   end
 end
 
 function routing() :: Nothing
-  route(SCRIPT_URI) do
-    assets_js() |> Genie.Renderer.Js.js
+  if ! Genie.Assets.external_assets(assets_config)
+    Genie.Router.route(Genie.Assets.asset_route(GenieAutoReload.assets_config, :js, file="autoreload")) do
+      assets_js() |> Genie.Renderer.Js.js
+    end
   end
 
   channel("/$(WEBCHANNEL_NAME)/subscribe") do
