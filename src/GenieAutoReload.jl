@@ -12,6 +12,7 @@ Genie.config.websockets_server = true
 
 const WEBCHANNEL_NAME = "autoreload"
 const WATCH_KEY = "autoreload"
+const JS_FILE_NAME = "autoreload"
 const assets_config = Genie.Assets.AssetsConfig(package = "GenieAutoReload.jl")
 
 function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions) :: Nothing
@@ -19,7 +20,7 @@ function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.
 
   Genie.config.watch_handlers[WATCH_KEY] = [
     () -> @info("Autoreloading"),
-    () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "autoreload:full")
+    () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "$WEBCHANNEL_NAME:full")
   ]
 
   Genie.Watch.watchpath(files)
@@ -34,14 +35,14 @@ end
 function assets_js() :: String
   """
   function autoreload_subscribe() {
-    Genie.WebChannels.sendMessageTo('autoreload', 'subscribe');
+    Genie.WebChannels.sendMessageTo('$WEBCHANNEL_NAME', 'subscribe');
     console.info('Autoreloading ready');
   }
 
   setTimeout(autoreload_subscribe, 2000);
 
   Genie.WebChannels.messageHandlers.push(function(event) {
-    if ( event.data == 'autoreload:full' ) {
+    if ( event.data == '$WEBCHANNEL_NAME:full' ) {
       location.reload(true);
     }
   });
@@ -58,7 +59,7 @@ end
 
 function assets(; devonly = true) :: String
   if (devonly && Genie.Configuration.isdev()) || !devonly
-    Genie.Renderer.Html.script(src = Genie.Assets.asset_path(assets_config, :js, file="autoreload"))
+    Genie.Renderer.Html.script(src = Genie.Assets.asset_path(GenieAutoReload.assets_config, :js, file=JS_FILE_NAME))
   else
     ""
   end
@@ -66,7 +67,7 @@ end
 
 function routing() :: Nothing
   if ! Genie.Assets.external_assets(assets_config)
-    Genie.Router.route(Genie.Assets.asset_route(GenieAutoReload.assets_config, :js, file="autoreload")) do
+    Genie.Router.route(Genie.Assets.asset_route(GenieAutoReload.assets_config, :js, file=JS_FILE_NAME)) do
       assets_js() |> Genie.Renderer.Js.js
     end
   end
