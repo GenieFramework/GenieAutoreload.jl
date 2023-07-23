@@ -30,4 +30,4 @@ GenieAutoReload.autoreload(pwd())
 
 By default autoreloading is activated only when the Genie app runs in development. To force it to run in other environments, use `GenieAutoReload.autoreload(devonly = false)`.
 
-Similarely, the assets are included only when the Genie app runs in development (otherise `assets()` won't return anything and won't inject the `<script>` tag). To enable the assets in other environments, use `GenieAutoReload.assets(devonly = false)`.
+Similarely, the assets are included only when the Genie app runs in development (otherwise `assets()` won't return anything and won't inject the `<script>` tag). To enable the assets in other environments, use `GenieAutoReload.assets(devonly = false)`.
