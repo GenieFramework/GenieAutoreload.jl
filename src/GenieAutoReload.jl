@@ -3,7 +3,7 @@ module GenieAutoReload
 using Revise
 __revise_mode__ = :eval
 
-using Genie, Genie.Router, Genie.WebChannels, Genie.Context
+using Genie, Genie.Router, Genie.WebChannels #, Genie.Context
 using Distributed, Logging
 
 export autoreload
@@ -18,10 +18,10 @@ const assets_config = Genie.Assets.AssetsConfig(package = "GenieAutoReload.jl")
 function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.watch_extensions) :: Nothing
   @info "Watching $files"
 
-  Genie.config.watch_handlers[WATCH_KEY] = [
+  Genie.Watch.handlers!(WATCH_KEY, [
     () -> @info("Autoreloading"),
     () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "$WEBCHANNEL_NAME:full")
-  ]
+  ])
 
   Genie.Watch.watchpath(files)
   Genie.Watch.watch()
@@ -68,12 +68,12 @@ end
 
 function routing() :: Nothing
   if ! Genie.Assets.external_assets(assets_config)
-    route(Genie.Assets.asset_route(GenieAutoReload.assets_config, :js; file=JS_FILE_NAME)) do params
+    route(Genie.Assets.asset_route(GenieAutoReload.assets_config, :js; file=JS_FILE_NAME)) do # params
       assets_js() |> Genie.Renderer.Js.js
     end
   end
 
-  channel("/$(WEBCHANNEL_NAME)/subscribe") do params
+  channel("/$(WEBCHANNEL_NAME)/subscribe") do # params
     WebChannels.subscribe(params[:wsclient], WEBCHANNEL_NAME)
 
     "AutoReload subscribed"
