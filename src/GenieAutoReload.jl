@@ -20,7 +20,7 @@ function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.
 
   Genie.Watch.handlers!(WATCH_KEY, [
     () -> @info("Autoreloading"),
-    () -> Genie.WebChannels.broadcast(WEBCHANNEL_NAME, "$WEBCHANNEL_NAME:full")
+    () -> Genie.WebChannels.broadcast("$WEBCHANNEL_NAME:full")
   ])
 
   Genie.Watch.watchpath(files)
