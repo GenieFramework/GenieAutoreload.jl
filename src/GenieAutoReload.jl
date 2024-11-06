@@ -23,8 +23,7 @@ function watch(files::Vector{String}, extensions::Vector{String} = Genie.config.
     () -> Genie.WebChannels.broadcast("$WEBCHANNEL_NAME:full")
   ])
 
-  Genie.Watch.watchpath(files)
-  Genie.Watch.watch()
+  Genie.Watch.watch(files)
 
   nothing
 end
