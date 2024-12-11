@@ -39,12 +39,14 @@ function assets_js() :: String
     console.info('Autoreloading ready');
   }
 
-  setTimeout(autoreload_subscribe, 2000);
+  window.addEventListener('load', function() {
+    Genie.WebChannels.messageHandlers.push(function(event) {
+      if ( event.data == '$WEBCHANNEL_NAME:full' ) {
+        location.reload(true);
+      }
+    });
 
-  Genie.WebChannels.messageHandlers.push(function(event) {
-    if ( event.data == '$WEBCHANNEL_NAME:full' ) {
-      location.reload(true);
-    }
+    setTimeout(autoreload_subscribe, 2000);
   });
   """
 end
